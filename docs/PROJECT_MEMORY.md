@@ -185,6 +185,7 @@
 - 이후에는 클러스터를 Cell2Cell에서만 학습하고 IBM/BankChurners에 그대로 전이하는 source-only cluster transfer도 돌렸습니다. Cell2Cell baseline transfer는 IBM AUC `0.3661`, BankChurners AUC `0.4961`으로 약했지만, Cell2Cell cluster-router는 IBM AUC `0.5420`, BankChurners AUC `0.5726`까지 올렸습니다. 즉, Cell2Cell 클러스터 구조는 IBM에는 꽤 도움이 되었지만 BankChurners까지 보편적으로 옮겨가지는 못했고, 클러스터는 여전히 `도메인-aware 분기 장치`에 가깝다는 점이 확인됐습니다.
 - 이후 `abstract_shared`에서 `tenure`와 tenure 기반 정규화 비율을 제거한 cluster-router도 다시 돌려봤습니다. 이 버전에서는 baseline pooled IBM AUC가 `0.5869`로 조금 올라갔지만, cluster-router의 IBM AUC는 `0.6133`에 그쳐 이전 `0.7131`보다 낮았습니다. 즉, `tenure`는 universal core로는 불안정했지만 클러스터 라우팅에서는 분기 신호로도 일부 유효했다는 뜻입니다. 따라서 `tenure`는 완전 제거보다는, 범용 core와 routing용 신호를 분리해 다루는 것이 더 적절합니다.
 - 최근에는 세 도메인(`Cell2Cell`, `BankChurners`, `IBM`)을 한 번에 pooled training으로 묶어 최종 범용성을 점검했습니다. `with_tenure`에서는 pooled baseline 평균 AUC `0.8247`, 평균 F1 `0.6436`, cluster-router 평균 AUC `0.8232`, 평균 F1 `0.6448`이었고, `no_tenure`에서는 pooled baseline 평균 AUC `0.8123`, 평균 F1 `0.6366`, cluster-router 평균 AUC `0.8132`, 평균 F1 `0.6343`이었습니다. 결론적으로 세 도메인을 함께 학습하면 BankChurners와 IBM은 매우 강하게 맞지만, Cell2Cell이 가장 약하며, router는 전역 baseline을 크게 앞서기보다 도메인별 균형을 맞추는 역할에 가깝습니다.
+- 같은 3도메인 pooled 설정 위에 top-k gating도 추가로 실험했습니다. `with_tenure`의 best top-k는 `k=2, gate_k=2`에서 mean AUC `0.8186`, mean F1 `0.6359`, `no_tenure`는 mean AUC `0.8091`, mean F1 `0.6357`이었습니다. hard router보다 일관되게 낮아서, 이 데이터 묶음에서는 soft mixture보다 hard routing이 더 적합하다는 결론을 얻었습니다.
 - 따라서 현재 해석은 `이탈 원인 설명 + 유지 전략 연결`보다 한 단계 더 나아가, `포터블 피처 세트 구축 + 외부 데이터 교차 검증`이 핵심입니다.
 
 ## 한 줄 요약
